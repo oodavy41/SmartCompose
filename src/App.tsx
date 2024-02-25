@@ -1,35 +1,63 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useEffect, useRef, useState, forwardRef } from "react";
+import "./App.css";
+
+import withSmartCompose, { ToSmartComposeProps } from "./smartCompose";
+
+const EditableDiv = forwardRef<HTMLDivElement, ToSmartComposeProps>(
+  (props, ref) => {
+    useEffect(() => {
+      const currentElement = ref as React.RefObject<HTMLDivElement>;
+      const handleInput = (e: Event) => {
+        const target = e.target as HTMLElement;
+        props.onChange(
+          target.innerHTML.split('<span style="color:gray">')[0],
+          window.getSelection()?.focusOffset || 0
+        );
+        console.log(window.getSelection());
+      };
+
+      if (currentElement.current) {
+        currentElement.current.addEventListener("input", handleInput);
+      }
+
+      return () => {
+        if (currentElement.current) {
+          currentElement.current.removeEventListener("input", handleInput);
+        }
+      };
+    }, [ref, props]);
+
+    return (
+      <div
+        style={{
+          minHeight: 100,
+          border: "1px solid #ccc",
+          padding: 10,
+          width: 400,
+          textAlign: "left",
+        }}
+        ref={ref}
+        contentEditable
+        // onChange={props.onChange}
+        onKeyDown={props.onKeyDown}
+      />
+    );
+  }
+);
 
 function App() {
-  const [count, setCount] = useState(0)
+  const SmartEditableDiv = withSmartCompose(EditableDiv);
 
   return (
     <>
       <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        <h2>TEST</h2>
+        =====
+        <SmartEditableDiv onChange={(text) => console.log(text)} />
+        =====
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
