@@ -1,11 +1,11 @@
 import React, { ComponentType, useEffect, useState, useRef } from "react";
-import { fetchOrigin, debounceDelay } from "./config";
+import { fetchUrl, debounceDelay } from "./config";
 
 const fetchSuggestions = (input: string): Promise<string> => {
   console.log("fetch", input);
-  if (fetchOrigin) {
+  if (fetchUrl) {
     return new Promise<string>((resolve, reject) => {
-      fetch(`http://${fetchOrigin}/api/smartCompose`, {
+      fetch(fetchUrl, {
         method: "POST", headers: {
           'Content-Type': 'application/json',
         },
@@ -80,6 +80,9 @@ function withSmartCompose<T extends ToSmartComposeProps >(
         e.preventDefault();
         console.log("auto fill: ", suggestion);
         handleChange(inputValue + suggestion, pos + suggestion.length);
+      }
+      if(e.key=="Enter"){
+        e.preventDefault();
       }
       //adjustCaretPosition(ref.current!);
       props.onKeyDown?.(e);

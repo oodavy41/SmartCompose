@@ -10,15 +10,18 @@ export const EditableDiv = forwardRef<HTMLDivElement, ToSmartComposeProps & Part
         const target = e.target as HTMLElement;
         console.log("on input html: ", target.innerHTML, target.innerHTML.split('<span style="color:gray">')[0])
 
-        const selection = window.getSelection();
-        const range = selection?.getRangeAt(0);
-        range?.setStart(currentElement.current!, 0);
-        const caretPosition = range?.toString().length;
-
+        const range = window.getSelection()?.getRangeAt(0);
+        let caretPosition = 0;
+        if (range) {
+          range.setStart(currentElement.current!, 0);
+          caretPosition = range.toString().length;
+        }
         props.onChange(
           target.innerHTML.split('<span style="color:gray">')[0],
-          caretPosition || 0
+          caretPosition
         );
+
+
       };
 
       if (currentElement.current) {
